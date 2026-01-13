@@ -209,6 +209,45 @@
      font-size: 14px;
  }
 
+/* TAMBAHKAN STYLE CLEAR BUTTON DI SINI */
+.clear-container {
+    margin-top: 20px;     /* Jarak atas: 15px atau 20px */
+    text-align: center;     /* Tombol di tengah */
+}
+
+.clear-btn {
+    padding: 10px 20px;  /* Padding: 10px 20px */
+    background: #ff7043;       /* Warna merah tapi lebih soft: #ff7043 atau #f4511e */
+    color: white;            /* Warna teks: white */
+    border: none;
+    border-radius: 8px;    /* Border radius: 8px */
+    font-size: 14px;        /* Font size: 14px */
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.clear-btn:hover {
+    background: #e64a19;       /* Hover: warna lebih gelap, contoh: #e64a19 */
+    transform: scale(1.05);   /* Efek membesar sedikit */
+}
+
+.clear-btn:disabled {
+    background: #ccc;       /* Disabled: #ccc atau #e0e0e0 */
+    color: #999;            /* Warna teks disabled: #999 */
+    cursor: not-allowed;      /* Cursor jadi tanda dilarang */
+    transform: none;
+}
+
+.stats {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #ffffff;
+    text-align: center;
+    color: #ffffff;
+    font-size: 14px;
+}
+
 
 
  /* ===== RESPONSIVE DESIGN - MOBILE ===== */
@@ -299,5 +338,9 @@
     
     .task-item {
         padding: 10px;
+    }
+    .clear-btn {
+        padding: 7px 14px;
+        font-size: 12px;
     }
 }

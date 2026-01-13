@@ -9,6 +9,7 @@
  const taskList = document.getElementById('taskList');
  const statsText = document.getElementById('statsText');
  const searchInput = document.getElementById('searchInput');
+ const clearCompletedBtn = document.getElementById('clearCompletedBtn');
 
  // ===== FUNGSI UTAMA =====
  
@@ -227,6 +228,45 @@ function setFilter(filter) {
     // 4. Render ulang tasks dengan filter baru
     renderTasks();
 }
+
+// TAMBAHKAN FUNGSI CLEAR COMPLETED DI SINI
+function clearCompleted() {
+    // 1. Hitung berapa tugas yang selesai
+    const completedCount = tasks.filter(t => t.completed).length;
+    
+    // 2. Cek apakah ada tugas selesai
+    if (completedCount === 0) {
+        alert('Tidak ada tugas selesai untuk dihapus!');
+        return;
+    }
+
+    // TAMBAHKAN FUNGSI UPDATE CLEAR BUTTON DI SINI
+function updateClearButton() {
+    // Hitung jumlah tugas yang selesai
+    const completedCount = tasks.filter(t => t.completed).length;
+    
+    // Enable/disable tombol berdasarkan jumlah completed
+    if (completedCount > 0) {
+        clearCompletedBtn.disabled = false;  // Enable tombol
+        clearCompletedBtn.textContent = `🗑️ Bersihkan Tugas Selesai (${completedCount})`;
+    } else {
+        clearCompletedBtn.disabled = true;   // Disable tombol
+        clearCompletedBtn.textContent = '🗑️ Bersihkan Tugas Selesai';
+    }
+}
+    
+    // 3. Konfirmasi sebelum menghapus
+    if (confirm(`Yakin ingin menghapus ${completedCount} tugas yang sudah selesai?`)) {
+        // 4. Filter tasks, hapus yang completed === true
+        tasks = tasks.filter(t => !t.completed);
+        
+        // 5. Simpan ke localStorage
+        saveTasks();
+        
+        // 6. Render ulang tampilan
+        renderTasks();
+    }
+}
  
  // ===== LOCAL STORAGE =====
  
@@ -268,6 +308,9 @@ document.querySelectorAll('.filter-btn').forEach(button => {
         setFilter(filter);
     });
 });
+
+// TAMBAHKAN EVENT LISTENER CLEAR BUTTON DI SINI
+clearCompletedBtn.addEventListener('click', clearCompleted);
 
  
  // ===== INISIALISASI =====
