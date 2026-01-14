@@ -1,189 +1,72 @@
- // ===== VARIABEL GLOBAL =====
- // Array untuk menyimpan semua tugas
- let tasks = [];
- let currentFilter = 'all'; // 'all', 'completed', 'remaining'
- 
- // Mengambil elemen HTML yang akan kita gunakan
- const taskInput = document.getElementById('taskInput');
- const addButton = document.getElementById('addButton');
- const taskList = document.getElementById('taskList');
- const statsText = document.getElementById('statsText');
- const searchInput = document.getElementById('searchInput');
- const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+// ===== VARIABEL GLOBAL =====
+// Array untuk menyimpan semua tugas
+let tasks = [];
+let currentFilter = 'all'; // 'all', 'completed', 'active'
 
- // ===== FUNGSI UTAMA =====
- 
- // Fungsi untuk menambah tugas baru
- function addTask() {
-     const taskText = taskInput.value.trim(); // Ambil teks dan hapus spasi di awal/akhir
-     
-     // Validasi: cek apakah input kosong
-     if (taskText === '') {
-         alert('Tolong masukkan nama tugas terlebih dahulu!');
-         return;
-     }
-     
-     // Membuat objek tugas baru
-     const task = {
-         id: Date.now(), // ID unik menggunakan timestamp
-         text: taskText,
-         completed: false
-     };
-     
-     // Menambahkan tugas ke array
-     tasks.push(task);
-     
-     // Kosongkan input setelah ditambahkan
-     taskInput.value = '';
-     
-     // Fokus kembali ke input
-     taskInput.focus();
-     
-     // Simpan ke localStorage dan render ulang tampilan
-     saveTasks();
-     renderTasks();
- }
- 
- // Fungsi untuk menampilkan semua tugas
- function renderTasks() {
-    // Reset search input saat render ulang
-    searchInput.value = '';  // Hint: property untuk mengosongkan input
-     // Kosongkan daftar tugas terlebih dahulu
-     taskList.innerHTML = '';
-     
-     // Cek apakah ada tugas
-     if (tasks.length === 0) {
-         taskList.innerHTML = '<div class="empty-message">Belum ada tugas. Yuk tambahkan!</div>';
-         updateStats();
-         return;
-     }
+// Mengambil elemen HTML yang akan kita gunakan
+const taskInput = document.getElementById('taskInput');
+const addButton = document.getElementById('addButton');
+const taskList = document.getElementById('taskList');
+const statsText = document.getElementById('statsText');
+const searchInput = document.getElementById('searchInput');
+const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+const prioritySelect = document.getElementById('prioritySelect');
 
-         // TAMBAHKAN FILTER LOGIC DI SINI (SEBELUM forEach)
-    let filteredTasks = tasks; // Default: tampilkan semua
+// ===== FUNGSI UTAMA =====
+
+// Fungsi untuk menambah tugas baru
+function addTask() {
+    const taskText = taskInput.value.trim();
+    
+    if (taskText === '') {
+        alert('Tolong masukkan nama tugas terlebih dahulu!');
+        return;
+    }
+    
+    const task = {
+        id: Date.now(),
+        text: taskText,
+        completed: false,
+        priority: prioritySelect.value
+    };
+    
+    tasks.push(task);
+    taskInput.value = '';
+    prioritySelect.value = 'normal';
+    taskInput.focus();
+    saveTasks();
+    renderTasks();
+}
+
+// Fungsi untuk menampilkan semua tugas
+function renderTasks() {
+    searchInput.value = '';
+    taskList.innerHTML = '';
+    
+    if (tasks.length === 0) {
+        taskList.innerHTML = '<div class="empty-message">Belum ada tugas. Yuk tambahkan!</div>';
+        updateStats();
+        updateClearButton();
+        return;
+    }
+
+    let filteredTasks = tasks;
     
     if (currentFilter === 'active') {
-        // Filter hanya tugas yang belum selesai
         filteredTasks = tasks.filter(t => !t.completed);
     } else if (currentFilter === 'completed') {
-        // Filter hanya tugas yang sudah selesai
         filteredTasks = tasks.filter(t => t.completed);
     }
-    // Kalau currentFilter === 'all', filteredTasks tetap semua tasks
+
+    filteredTasks = sortTasksByPriority(filteredTasks);
     
-    // Cek apakah ada hasil setelah filter
     if (filteredTasks.length === 0) {
         taskList.innerHTML = '<div class="empty-message">Tidak ada tugas di kategori ini</div>';
         updateStats();
+        updateClearButton();
         return;
     }
     
-//  LOOP YANG BENAR - pakai filteredTasks
-filteredTasks.forEach(task => {  // ← UBAH DARI tasks JADI filteredTasks
-    const li = document.createElement('li');
-    li.className = 'task-item';
-    
-    if (task.completed) {
-        li.classList.add('completed');
-    }
-    
-    li.innerHTML = `
-        <input 
-            type="checkbox" 
-            class="checkbox" 
-            ${task.completed ? 'checked' : ''}
-            onchange="toggleTask(${task.id})"
-        >
-        <span class="task-text">${task.text}</span>
-        <button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
-        <button class="delete-btn" onclick="deleteTask(${task.id})">Hapus</button>
-    `;
-    
-    taskList.appendChild(li);
-});
-
-updateStats();
-    }
-
- // Fungsi untuk menandai tugas selesai/belum selesai
- function toggleTask(id) {
-     // Cari tugas berdasarkan ID
-     const task = tasks.find(t => t.id === id);
-     
-     if (task) {
-         // Toggle status completed
-         task.completed = !task.completed;
-         saveTasks();
-         renderTasks();
-     }
- }
- 
- // Fungsi untuk menghapus tugas
- function deleteTask(id) {
-     // Konfirmasi sebelum menghapus
-     if (confirm('Yakin ingin menghapus tugas ini?')) {
-         // Filter array, hapus tugas dengan ID yang sesuai
-         tasks = tasks.filter(t => t.id !== id);
-         saveTasks();
-         renderTasks();
-     }
- }
-
- function editTask(id) {
-    // 1. Cari task berdasarkan id
-    const task = tasks.find(t => t.id === id);
-    
-    // 2. Cek apakah task ditemukan
-    if (task) {
-        // 3. Tampilkan prompt untuk input teks baru
-        const newText = prompt('Edit nama tugas:', task.text);
-        
-        // 4. Cek apakah user tidak cancel dan input tidak kosong
-        if (newText !== null && newText.trim() !== '') {
-            // 5. Update task.text dengan newText yang sudah di-trim
-            task.text = newText.trim();
-            
-            // 6. Simpan ke localStorage
-            saveTasks();
-            
-            // 7. Render ulang tampilan
-            renderTasks();
-        }
-    }
-}
- 
- // Fungsi untuk update statistik
- function updateStats() {
-     const total = tasks.length;
-     const completed = tasks.filter(t => t.completed).length;
-     const remaining = total - completed;
-     
-     if (total === 0) {
-         statsText.textContent = 'Belum ada tugas';
-     } else {
-         statsText.textContent = `Total: ${total} tugas | Selesai: ${completed} | Tersisa: ${remaining}`;
-     }
- }
-
- // TAMBAHKAN FUNGSI SEARCH DI SINI
-function searchTasks() {
-    // 1. Ambil nilai search dan ubah ke lowercase
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    
-    // 2. Kosongkan taskList
-    taskList.innerHTML = '';
-    
-    // 3. Filter tasks yang mengandung kata kunci
-    const filteredTasks = tasks.filter(task => 
-        task.text.toLowerCase().includes(searchTerm)
-    );
-    
-    // 4. Cek apakah ada hasil
-    if (filteredTasks.length === 0) {
-        taskList.innerHTML = '<div class="empty-message">Tugas tidak ditemukan</div>';
-        return;
-    }
-    
-    // 5. Loop dan tampilkan hasil pencarian (SAMA seperti renderTasks)
     filteredTasks.forEach(task => {
         const li = document.createElement('li');
         li.className = 'task-item';
@@ -199,6 +82,103 @@ function searchTasks() {
                 ${task.completed ? 'checked' : ''}
                 onchange="toggleTask(${task.id})"
             >
+            <span class="priority-badge priority-${task.priority}">
+                ${getPriorityLabel(task.priority)}
+            </span>
+            <span class="task-text">${task.text}</span>
+            <button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
+            <button class="delete-btn" onclick="deleteTask(${task.id})">Hapus</button>
+        `;
+        
+        taskList.appendChild(li);
+    });
+    
+    updateStats();
+    updateClearButton();
+}
+
+// Fungsi untuk menandai tugas selesai/belum selesai
+function toggleTask(id) {
+    const task = tasks.find(t => t.id === id);
+    
+    if (task) {
+        task.completed = !task.completed;
+        saveTasks();
+        renderTasks();
+    }
+}
+
+// Fungsi untuk menghapus tugas
+function deleteTask(id) {
+    if (confirm('Yakin ingin menghapus tugas ini?')) {
+        tasks = tasks.filter(t => t.id !== id);
+        saveTasks();
+        renderTasks();
+    }
+}
+
+// Fungsi untuk edit tugas
+function editTask(id) {
+    const task = tasks.find(t => t.id === id);
+    
+    if (task) {
+        const newText = prompt('Edit nama tugas:', task.text);
+        
+        if (newText !== null && newText.trim() !== '') {
+            task.text = newText.trim();
+            saveTasks();
+            renderTasks();
+        }
+    }
+}
+
+// Fungsi untuk update statistik
+function updateStats() {
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.completed).length;
+    const remaining = total - completed;
+    
+    if (total === 0) {
+        statsText.textContent = 'Belum ada tugas';
+    } else {
+        statsText.textContent = `Total: ${total} tugas | Selesai: ${completed} | Tersisa: ${remaining}`;
+    }
+}
+
+// Fungsi untuk search tugas
+function searchTasks() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    taskList.innerHTML = '';
+    
+    const filteredTasks = tasks.filter(task => 
+        task.text.toLowerCase().includes(searchTerm)
+    );
+    
+    if (filteredTasks.length === 0) {
+        taskList.innerHTML = '<div class="empty-message">Tugas tidak ditemukan</div>';
+        return;
+    }
+    
+    const sortedTasks = sortTasksByPriority(filteredTasks);
+    
+    sortedTasks.forEach(task => {
+        const li = document.createElement('li');
+        li.className = 'task-item';
+        
+        if (task.completed) {
+            li.classList.add('completed');
+        }
+        
+        li.innerHTML = `
+            <input 
+                type="checkbox" 
+                class="checkbox" 
+                ${task.completed ? 'checked' : ''}
+                onchange="toggleTask(${task.id})"
+            >
+            <span class="priority-badge priority-${task.priority}">
+                ${getPriorityLabel(task.priority)}
+            </span>
             <span class="task-text">${task.text}</span>
             <button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
             <button class="delete-btn" onclick="deleteTask(${task.id})">Hapus</button>
@@ -208,100 +188,119 @@ function searchTasks() {
     });
 }
 
-// TAMBAHKAN FUNGSI SET FILTER DI SINI
+// Fungsi untuk set filter
 function setFilter(filter) {
-    // 1. Update variabel currentFilter
     currentFilter = filter;
     
-    // 2. Update tampilan tombol (hapus class 'active' dari semua tombol)
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // 3. Tambahkan class 'active' ke tombol yang diklik
-    // Cari tombol dengan data-filter yang sesuai
     const activeButton = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
     if (activeButton) {
         activeButton.classList.add('active');
     }
     
-    // 4. Render ulang tasks dengan filter baru
     renderTasks();
 }
 
-// TAMBAHKAN FUNGSI CLEAR COMPLETED DI SINI
+// Fungsi untuk clear completed tasks
 function clearCompleted() {
-    // 1. Hitung berapa tugas yang selesai
     const completedCount = tasks.filter(t => t.completed).length;
     
-    // 2. Cek apakah ada tugas selesai
     if (completedCount === 0) {
         alert('Tidak ada tugas selesai untuk dihapus!');
         return;
     }
-
-    // TAMBAHKAN FUNGSI UPDATE CLEAR BUTTON DI SINI
-function updateClearButton() {
-    // Hitung jumlah tugas yang selesai
-    const completedCount = tasks.filter(t => t.completed).length;
     
-    // Enable/disable tombol berdasarkan jumlah completed
-    if (completedCount > 0) {
-        clearCompletedBtn.disabled = false;  // Enable tombol
-        clearCompletedBtn.textContent = `🗑️ Bersihkan Tugas Selesai (${completedCount})`;
-    } else {
-        clearCompletedBtn.disabled = true;   // Disable tombol
-        clearCompletedBtn.textContent = '🗑️ Bersihkan Tugas Selesai';
-    }
-}
-    
-    // 3. Konfirmasi sebelum menghapus
     if (confirm(`Yakin ingin menghapus ${completedCount} tugas yang sudah selesai?`)) {
-        // 4. Filter tasks, hapus yang completed === true
         tasks = tasks.filter(t => !t.completed);
-        
-        // 5. Simpan ke localStorage
         saveTasks();
-        
-        // 6. Render ulang tampilan
         renderTasks();
     }
 }
- 
- // ===== LOCAL STORAGE =====
- 
- // Fungsi untuk menyimpan ke localStorage
- function saveTasks() {
-     localStorage.setItem('tasks', JSON.stringify(tasks));
- }
- 
- // Fungsi untuk memuat dari localStorage
- function loadTasks() {
-     const savedTasks = localStorage.getItem('tasks');
-     
-     if (savedTasks) {
-         tasks = JSON.parse(savedTasks);
-         renderTasks();
-     }
- }
- 
- // ===== EVENT LISTENERS =====
- 
- // Tombol tambah diklik
- addButton.addEventListener('click', addTask);
- 
- // Enter di keyboard untuk menambah tugas
- taskInput.addEventListener('keypress', function(event) {
-     if (event.key === 'Enter') {
-         addTask();
-     }
- });
 
- // TAMBAHKAN EVENT LISTENER SEARCH DI SINI
+// Fungsi untuk update clear button
+function updateClearButton() {
+    const completedCount = tasks.filter(t => t.completed).length;
+    
+    if (completedCount > 0) {
+        clearCompletedBtn.disabled = false;
+        clearCompletedBtn.textContent = `🗑️ Bersihkan Tugas Selesai (${completedCount})`;
+    } else {
+        clearCompletedBtn.disabled = true;
+        clearCompletedBtn.textContent = '🗑️ Bersihkan Tugas Selesai';
+    }
+}
+
+// Fungsi untuk get priority label
+function getPriorityLabel(priority) {
+    switch(priority) {
+        case 'low':
+            return '🟢 Rendah';
+        case 'high':
+            return '🔴 Tinggi';
+        default:
+            return '🟡 Normal';
+    }
+}
+
+// Fungsi untuk sort tasks by priority
+function sortTasksByPriority(tasksArray) {
+    const priorityWeight = {
+        'high': 3,
+        'normal': 2,
+        'low': 1
+    };
+    
+    return tasksArray.sort((a, b) => {
+        return priorityWeight[b.priority] - priorityWeight[a.priority];
+    });
+}
+
+// ===== LOCAL STORAGE =====
+
+// Fungsi untuk menyimpan ke localStorage
+function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+// Fungsi untuk memuat dari localStorage
+function loadTasks() {
+    const savedTasks = localStorage.getItem('tasks');
+    
+    if (savedTasks) {
+        tasks = JSON.parse(savedTasks);
+        
+        // Migrasi data lama - tambahkan priority jika belum ada
+        tasks = tasks.map(task => {
+            if (!task.priority) {
+                task.priority = 'normal';
+            }
+            return task;
+        });
+        
+        saveTasks();
+        renderTasks();
+    }
+}
+
+// ===== EVENT LISTENERS =====
+
+// Tombol tambah diklik
+addButton.addEventListener('click', addTask);
+
+// Enter di keyboard untuk menambah tugas
+taskInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        addTask();
+    }
+});
+
+// Search input
 searchInput.addEventListener('input', searchTasks);
-// Hint: gunakan event 'input' supaya search langsung real-time saat mengetik
 
-// TAMBAHKAN EVENT LISTENER FILTER DI SINI
+// Filter buttons
 document.querySelectorAll('.filter-btn').forEach(button => {
     button.addEventListener('click', function() {
         const filter = this.getAttribute('data-filter');
@@ -309,10 +308,9 @@ document.querySelectorAll('.filter-btn').forEach(button => {
     });
 });
 
-// TAMBAHKAN EVENT LISTENER CLEAR BUTTON DI SINI
+// Clear completed button
 clearCompletedBtn.addEventListener('click', clearCompleted);
 
- 
- // ===== INISIALISASI =====
- // Muat tugas yang tersimpan saat halaman dibuka
+// ===== INISIALISASI =====
+// Muat tugas yang tersimpan saat halaman dibuka
 loadTasks();

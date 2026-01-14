@@ -162,6 +162,53 @@
      height: 20px;
      cursor: pointer;
  }
+
+ .input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* TAMBAHKAN STYLE PRIORITY SELECT DI SINI */
+.priority-select {
+    padding: ____px ____px;    /* Padding: 12px 10px */
+    border: 2px solid ______;   /* Border: #e0e0e0 */
+    border-radius: ____px;      /* Border radius: 8px */
+    font-size: ____px;          /* Font size: 14px atau 15px */
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s;
+    background: white;
+    min-width: ____px;          /* Min width: 120px */
+}
+
+.priority-select:focus {
+    border-color: ______;       /* Focus: #667eea */
+}
+
+/* TAMBAHKAN STYLE PRIORITY BADGE DI SINI */
+.priority-badge {
+    padding: 4px 10px;     /* Padding: 4px 10px */
+    border-radius: 12px;      /* Border radius: 12px (bentuk pill kecil) */
+    font-size: 12px;          /* Font size: 11px atau 12px */
+    font-weight: 600;
+    margin-right: 8px;       /* Margin right: 8px */
+}
+
+.priority-low {
+    background: #c8e6c9;         /* Background hijau muda: #c8e6c9 */
+    color: #2e7d32;              /* Text hijau tua: #2e7d32 */
+}
+
+.priority-normal {
+    background: #fff9c4;         /* Background kuning muda: #fff9c4 */
+    color: #f57f17;              /* Text kuning tua: #f57f17 */
+}
+
+.priority-high {
+    background: #ffcdd2;         /* Background merah muda: #ffcdd2 */
+    color: #c62828;              /* Text merah tua: #c62828 */
+}
  
  .delete-btn {
      background: #ff5252;
@@ -342,5 +389,20 @@
     .clear-btn {
         padding: 7px 14px;
         font-size: 12px;
+    }
+
+        .input-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .priority-select {
+        width: 100%;
+        font-size: 14px;
+    }
+    
+    .priority-badge {
+        font-size: 10px;
+        padding: 3px 8px;
     }
 }
