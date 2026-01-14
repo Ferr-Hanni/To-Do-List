@@ -18,13 +18,12 @@
                 placeholder="Tambahkan Tugas Baru..."
                 autocomplete="off"
             >
-
-                <!-- TAMBAHKAN SELECT PRIORITAS DI SINI -->
-     <select id="prioritySelect" class="priority-select">
-        <option value="low">🟢 Rendah</option>
-        <option value="normal" selected>🟡 Normal</option>
-        <option value="high">🔴 Tinggi</option>
-    </select>
+            
+            <select id="prioritySelect" class="priority-select">
+                <option value="low">🟢 Rendah</option>
+                <option value="normal" selected>🟡 Normal</option>
+                <option value="high">🔴 Tinggi</option>
+            </select>
 
             <button id="addButton">Tambah</button>
         </div>
@@ -38,23 +37,17 @@
             >
         </div>
 
-        <!-- TAMBAHKAN FILTER BUTTONS DI SINI -->
-<div class="filter-container">
-    <button class="filter-btn active" data-filter="all">Semua</button>
-    <button class="filter-btn" data-filter="active">Aktif</button>
-    <button class="filter-btn" data-filter="completed">Selesai</button>
-</div>
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">Semua</button>
+            <button class="filter-btn" data-filter="active">Aktif</button>
+            <button class="filter-btn" data-filter="completed">Selesai</button>
+        </div>
 
         <ul id="taskList"></ul>
 
-        <!-- TAMBAHKAN TOMBOL CLEAR COMPLETED DI SINI -->
-<div class="clear-container">
-    <button id="clearCompletedBtn" class="clear-btn">🗑️ Bersihkan Tugas Selesai</button>
-</div>
-
-<div class="stats">
-    <span id="statsText">Belum ada tugas</span>
-</div>
+        <div class="clear-container">
+            <button id="clearCompletedBtn" class="clear-btn">🗑️ Bersihkan Tugas Selesai</button>
+        </div>
 
         <div class="stats">
             <span id="statsText">Belum ada tugas</span>
