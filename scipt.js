@@ -29,13 +29,13 @@ function addTask() {
         text: taskText,
         completed: false,
         priority: prioritySelect.value,
-        deadline: deadlineInput.value || null  // TAMBAHKAN INI - ambil value atau null jika kosong
+        deadline: deadlineInput.value || null
     };
     
     tasks.push(task);
     taskInput.value = '';
     prioritySelect.value = 'normal';
-    deadlineInput.value = '';  // TAMBAHKAN: Reset deadline input
+    deadlineInput.value = '';
     taskInput.focus();
     
     saveTasks();
@@ -79,6 +79,9 @@ function renderTasks() {
             li.classList.add('completed');
         }
         
+        // Get deadline info
+        const deadlineInfo = getDeadlineInfo(task.deadline);
+        
         li.innerHTML = `
             <input 
                 type="checkbox" 
@@ -89,6 +92,11 @@ function renderTasks() {
             <span class="priority-badge priority-${task.priority}">
                 ${getPriorityLabel(task.priority)}
             </span>
+            ${deadlineInfo ? `
+                <span class="deadline-badge deadline-${deadlineInfo.status}">
+                    ${deadlineInfo.icon} ${deadlineInfo.text}
+                </span>
+            ` : ''}
             <span class="task-text">${task.text}</span>
             <button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
             <button class="delete-btn" onclick="deleteTask(${task.id})">Hapus</button>
@@ -173,6 +181,9 @@ function searchTasks() {
             li.classList.add('completed');
         }
         
+        // Get deadline info
+        const deadlineInfo = getDeadlineInfo(task.deadline);
+        
         li.innerHTML = `
             <input 
                 type="checkbox" 
@@ -183,6 +194,11 @@ function searchTasks() {
             <span class="priority-badge priority-${task.priority}">
                 ${getPriorityLabel(task.priority)}
             </span>
+            ${deadlineInfo ? `
+                <span class="deadline-badge deadline-${deadlineInfo.status}">
+                    ${deadlineInfo.icon} ${deadlineInfo.text}
+                </span>
+            ` : ''}
             <span class="task-text">${task.text}</span>
             <button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
             <button class="delete-btn" onclick="deleteTask(${task.id})">Hapus</button>
@@ -249,7 +265,7 @@ function getPriorityLabel(priority) {
     }
 }
 
-// TAMBAHKAN FUNGSI GET DEADLINE INFO DI SINI
+// Fungsi untuk get deadline info
 function getDeadlineInfo(deadline) {
     if (!deadline) {
         return null;
@@ -269,22 +285,22 @@ function getDeadlineInfo(deadline) {
     
     if (diffDays < 0) {
         // Lewat deadline
-        status = 'overdue';  // Hint: 'overdue'
+        status = 'overdue';
         icon = '🔴';
         text = `Terlambat ${Math.abs(diffDays)} hari`;
     } else if (diffDays === 0) {
         // Hari ini
-        status = 'today';  // Hint: 'today'
+        status = 'today';
         icon = '⚡';
         text = 'Hari ini!';
     } else if (diffDays <= 3) {
         // Deadline dekat (1-3 hari)
-        status = 'soon';  // Hint: 'soon'
+        status = 'soon';
         icon = '⚠️';
         text = `${diffDays} hari lagi`;
     } else {
         // Masih lama
-        status = 'upcoming';  // Hint: 'upcoming'
+        status = 'upcoming';
         icon = '📅';
         text = `${diffDays} hari lagi`;
     }
@@ -301,7 +317,23 @@ function sortTasksByPriority(tasksArray) {
     };
     
     return tasksArray.sort((a, b) => {
-        return priorityWeight[b.priority] - priorityWeight[a.priority];
+        // Sort by priority first
+        const priorityDiff = priorityWeight[b.priority] - priorityWeight[a.priority];
+        
+        if (priorityDiff !== 0) {
+            return priorityDiff;
+        }
+        
+        // If same priority, sort by deadline
+        if (a.deadline && b.deadline) {
+            return new Date(a.deadline) - new Date(b.deadline);
+        } else if (a.deadline) {
+            return -1; // a has deadline, put it first
+        } else if (b.deadline) {
+            return 1; // b has deadline, put it first
+        }
+        
+        return 0;
     });
 }
 
@@ -319,10 +351,13 @@ function loadTasks() {
     if (savedTasks) {
         tasks = JSON.parse(savedTasks);
         
-        // Migrasi data lama - tambahkan priority jika belum ada
+        // Migrasi data lama
         tasks = tasks.map(task => {
             if (!task.priority) {
                 task.priority = 'normal';
+            }
+            if (!task.hasOwnProperty('deadline')) {
+                task.deadline = null;
             }
             return task;
         });
