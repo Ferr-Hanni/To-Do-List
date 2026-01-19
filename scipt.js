@@ -11,6 +11,7 @@ const statsText = document.getElementById('statsText');
 const searchInput = document.getElementById('searchInput');
 const clearCompletedBtn = document.getElementById('clearCompletedBtn');
 const prioritySelect = document.getElementById('prioritySelect');
+const deadlineInput = document.getElementById('deadlineInput');
 
 // ===== FUNGSI UTAMA =====
 
@@ -27,13 +28,16 @@ function addTask() {
         id: Date.now(),
         text: taskText,
         completed: false,
-        priority: prioritySelect.value
+        priority: prioritySelect.value,
+        deadline: deadlineInput.value || null  // TAMBAHKAN INI - ambil value atau null jika kosong
     };
     
     tasks.push(task);
     taskInput.value = '';
     prioritySelect.value = 'normal';
+    deadlineInput.value = '';  // TAMBAHKAN: Reset deadline input
     taskInput.focus();
+    
     saveTasks();
     renderTasks();
 }
@@ -243,6 +247,49 @@ function getPriorityLabel(priority) {
         default:
             return '🟡 Normal';
     }
+}
+
+// TAMBAHKAN FUNGSI GET DEADLINE INFO DI SINI
+function getDeadlineInfo(deadline) {
+    if (!deadline) {
+        return null;
+    }
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+    
+    // Hitung selisih hari
+    const diffTime = deadlineDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    let status, text, icon;
+    
+    if (diffDays < 0) {
+        // Lewat deadline
+        status = 'overdue';  // Hint: 'overdue'
+        icon = '🔴';
+        text = `Terlambat ${Math.abs(diffDays)} hari`;
+    } else if (diffDays === 0) {
+        // Hari ini
+        status = 'today';  // Hint: 'today'
+        icon = '⚡';
+        text = 'Hari ini!';
+    } else if (diffDays <= 3) {
+        // Deadline dekat (1-3 hari)
+        status = 'soon';  // Hint: 'soon'
+        icon = '⚠️';
+        text = `${diffDays} hari lagi`;
+    } else {
+        // Masih lama
+        status = 'upcoming';  // Hint: 'upcoming'
+        icon = '📅';
+        text = `${diffDays} hari lagi`;
+    }
+    
+    return { status, text, icon };
 }
 
 // Fungsi untuk sort tasks by priority

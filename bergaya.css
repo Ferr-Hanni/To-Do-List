@@ -171,19 +171,42 @@
 
 /* TAMBAHKAN STYLE PRIORITY SELECT DI SINI */
 .priority-select {
-    padding: ____px ____px;    /* Padding: 12px 10px */
-    border: 2px solid ______;   /* Border: #e0e0e0 */
-    border-radius: ____px;      /* Border radius: 8px */
-    font-size: ____px;          /* Font size: 14px atau 15px */
+    padding: 12px 10px;    /* Padding: 12px 10px */
+    border: 2px solid #e0e0e0;   /* Border: #e0e0e0 */
+    border-radius: 8px;      /* Border radius: 8px */
+    font-size: 14px;          /* Font size: 14px atau 15px */
     cursor: pointer;
     outline: none;
     transition: border-color 0.3s;
     background: white;
-    min-width: ____px;          /* Min width: 120px */
+    min-width: 120px;          /* Min width: 120px */
 }
 
 .priority-select:focus {
-    border-color: ______;       /* Focus: #667eea */
+    border-color: #667eea;       /* Focus: #667eea */
+}
+
+/* TAMBAHKAN STYLE DEADLINE INPUT DI SINI */
+.deadline-input {
+    padding: 12px 10px;      /* Padding: 12px 10px */
+    border: 2px solid #e0e0e0;     /* Border: #e0e0e0 */
+    border-radius: 8px;        /* Border radius: 8px */
+    font-size: 14px;            /* Font size: 14px */
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s;
+    background: white;
+    min-width: 150px;            /* Min width: 150px */
+    color: #333;
+}
+
+.deadline-input:focus {
+    border-color: #667eea;         /* Focus: #667eea */
+}
+
+/* Style untuk placeholder date input */
+.deadline-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
 }
 
 /* TAMBAHKAN STYLE PRIORITY BADGE DI SINI */
@@ -208,6 +231,35 @@
 .priority-high {
     background: #ffcdd2;         /* Background merah muda: #ffcdd2 */
     color: #c62828;              /* Text merah tua: #c62828 */
+}
+
+/* TAMBAHKAN STYLE DEADLINE BADGE DI SINI */
+.deadline-badge {
+    padding: 4px 10px;       /* Padding: 4px 10px */
+    border-radius: 12px;        /* Border radius: 12px */
+    font-size: 12px;            /* Font size: 11px atau 12px */
+    font-weight: 600;
+    margin-right: 8px;         /* Margin right: 8px */
+}
+
+.deadline-upcoming {
+    background: #c8e6c9;           /* Hijau muda: #c8e6c9 */
+    color: #2e7d32;                /* Hijau tua: #2e7d32 */
+}
+
+.deadline-soon {
+    background: #ffe0b2;           /* Kuning/orange: #ffe0b2 */
+    color: #e65100;                /* Orange tua: #e65100 */
+}
+
+.deadline-overdue {
+    background: #ffcdd2;           /* Merah muda: #ffcdd2 */
+    color: #c62828;                /* Merah tua: #c62828 */
+}
+
+.deadline-today {
+    background: #bbdefb;           /* Biru muda: #bbdefb */
+    color: #1565c0;                /* Biru tua: #1565c0 */
 }
  
  .delete-btn {
